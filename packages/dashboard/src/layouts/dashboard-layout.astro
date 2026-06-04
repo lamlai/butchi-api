@@ -1,0 +1,85 @@
+---
+import "../styles/tokens.css";
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} - Butchi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: var(--font-family);
+        background: var(--color-canvas);
+        color: var(--color-ink);
+        min-height: 100vh;
+        display: flex;
+      }
+      .sidebar {
+        width: 240px;
+        background: var(--color-inverse-canvas);
+        color: var(--color-inverse-ink);
+        padding: var(--space-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+      }
+      .sidebar h2 {
+        font-weight: var(--font-weight-light);
+        font-size: 24px;
+        margin-bottom: var(--space-xl);
+        color: var(--color-inverse-ink);
+      }
+      .sidebar a {
+        color: var(--color-inverse-ink-muted);
+        text-decoration: none;
+        padding: var(--space-xs) var(--space-sm);
+        font-size: 14px;
+        letter-spacing: 0.16px;
+        border-radius: var(--radius-none);
+        transition: background 0.15s;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        background: var(--color-inverse-surface-1, #262626);
+        color: var(--color-inverse-ink);
+      }
+      .main {
+        flex: 1;
+        padding: var(--space-xxl);
+        max-width: 960px;
+      }
+      .main h1 {
+        font-weight: var(--font-weight-light);
+        font-size: 42px;
+        line-height: 1.2;
+        margin-bottom: var(--space-xl);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="sidebar">
+      <h2>Butchi</h2>
+      <a href="/dashboard/usage">Usage</a>
+      <a href="/dashboard/billing">Billing</a>
+      <a href="/dashboard/api-keys">API Keys</a>
+      <a href="/dashboard/profile">Profile</a>
+    </nav>
+    <main class="main">
+      <h1>{title}</h1>
+      <slot />
+    </main>
+  </body>
+</html>

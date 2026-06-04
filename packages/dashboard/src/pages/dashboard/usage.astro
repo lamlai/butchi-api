@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../layouts/dashboard-layout.astro";
+import UsageChart from "../../components/usage-chart";
+---
+
+<DashboardLayout title="Usage">
+  <UsageChart client:load />
+</DashboardLayout>
