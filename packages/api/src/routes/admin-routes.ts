@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { createAuthMiddleware } from "../middleware/auth-middleware";
 import { createAdminMiddleware } from "../middleware/admin-middleware";
 import { createIndexerService } from "../services/indexer-service";
+import { createAdminUserRoutes } from "./admin-user-routes";
+import { createAdminTransactionRoutes } from "./admin-transaction-routes";
 
 type Bindings = {
   DB: D1Database;
@@ -15,6 +17,10 @@ export function createAdminRoutes() {
   const router = new Hono<{ Bindings: Bindings }>();
   const auth = createAuthMiddleware();
   const admin = createAdminMiddleware();
+
+  // Mount sub-routers
+  router.route("/users", createAdminUserRoutes());
+  router.route("/transactions", createAdminTransactionRoutes());
 
   // POST /api/admin/reindex — trigger RAG index rebuild
   router.post("/reindex", auth, admin, async (c) => {

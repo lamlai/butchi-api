@@ -56,6 +56,11 @@ const { title } = Astro.props;
         background: var(--color-inverse-surface-1, #262626);
         color: var(--color-inverse-ink);
       }
+      .admin-nav {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+      }
       .main {
         flex: 1;
         padding: var(--space-xxl);
@@ -76,10 +81,29 @@ const { title } = Astro.props;
       <a href="/dashboard/billing">Billing</a>
       <a href="/dashboard/api-keys">API Keys</a>
       <a href="/dashboard/profile">Profile</a>
+      <div class="admin-nav" id="admin-nav" style="display:none;">
+        <hr style="border-color: var(--color-inverse-surface-1, #262626); margin: var(--space-sm) 0;" />
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.32px; color: var(--color-inverse-ink-muted); padding: var(--space-xs) var(--space-sm);">Admin</span>
+        <a href="/dashboard/admin/users">Users</a>
+        <a href="/dashboard/admin/transactions">Transactions</a>
+      </div>
     </nav>
     <main class="main">
       <h1>{title}</h1>
       <slot />
     </main>
+    <script>
+      // Show admin nav if user has admin role
+      try {
+        const token = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith('token='));
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (payload.role === 'admin') {
+            const adminNav = document.getElementById('admin-nav');
+            if (adminNav) adminNav.style.display = 'flex';
+          }
+        }
+      } catch {}
+    </script>
   </body>
 </html>

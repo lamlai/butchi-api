@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   role TEXT DEFAULT 'user',
+  status TEXT DEFAULT 'active',
   balance_cents INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS topup_records (
   amount_cents INTEGER NOT NULL,
   sepay_transaction_id TEXT UNIQUE,
   status TEXT DEFAULT 'pending',
+  proof_url TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   confirmed_at TEXT
 );

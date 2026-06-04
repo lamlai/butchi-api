@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../../layouts/dashboard-layout.astro";
+import AdminTransactionTable from "../../../components/admin-transaction-table.tsx";
+---
+
+<DashboardLayout title="Transactions">
+  <AdminTransactionTable client:load />
+</DashboardLayout>

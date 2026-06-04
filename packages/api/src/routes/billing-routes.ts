@@ -3,10 +3,12 @@ import { createAuthMiddleware } from "../middleware/auth-middleware";
 import { createBillingService, vndToUsdCents } from "../services/billing-service";
 import { createDefaultSepayService } from "../services/sepay-service";
 import type { EnvSePayConfig } from "../services/sepay-service";
+import { createBillingProofRoutes } from "./billing-proof-routes";
 
 type Bindings = {
   DB: D1Database;
   JWT_SECRET: string;
+  R2: R2Bucket;
   SEPAY_BANK_CODE?: string;
   SEPAY_ACCOUNT_NUMBER?: string;
   SEPAY_ACCOUNT_NAME?: string;
@@ -17,6 +19,9 @@ export function createBillingRoutes() {
   const router = new Hono<{ Bindings: Bindings }>();
   const auth = createAuthMiddleware();
   const billing = createBillingService();
+
+  // Mount proof upload sub-router
+  router.route("/topup", createBillingProofRoutes());
 
   // GET /api/billing — current balance
   router.get("/", auth, async (c) => {
