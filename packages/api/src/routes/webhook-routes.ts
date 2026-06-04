@@ -1,87 +1,99 @@
 import { Hono } from "hono";
-import { createBillingService } from "../services/billing-service";
-import { createSepayService } from "../services/sepay-service";
+import { createBillingService, vndToUsdCents } from "../services/billing-service";
 
 type Bindings = {
   DB: D1Database;
-  SEPAY_BANK_CODE?: string;
-  SEPAY_ACCOUNT_NUMBER?: string;
-  SEPAY_ACCOUNT_NAME?: string;
   SEPAY_WEBHOOK_SECRET?: string;
 };
+
+interface SepayWebhookPayload {
+  id: number;
+  gateway: string;
+  transactionDate: string;
+  accountNumber: string;
+  subAccount: string;
+  code: string | null;
+  content: string;
+  transferType: "in" | "out";
+  description: string;
+  transferAmount: number;
+  accumulated: number;
+  referenceCode: string;
+}
 
 export function createWebhookRoutes() {
   const router = new Hono<{ Bindings: Bindings }>();
 
-  // POST /api/webhooks/sepay — SePay payment confirmation
   router.post("/sepay", async (c) => {
     try {
-      const rawBody = await c.req.text();
-      const signature = c.req.header("X-SePay-Signature") ?? "";
+      const apiKey = c.req.header("Authorization");
+      const expectedKey = c.env.SEPAY_WEBHOOK_SECRET;
 
-      const sepay = createSepayService({
-        bankCode: c.env.SEPAY_BANK_CODE ?? "970436",
-        accountNumber: c.env.SEPAY_ACCOUNT_NUMBER ?? "",
-        accountName: c.env.SEPAY_ACCOUNT_NAME ?? "BUTCHI",
-        webhookSecret: c.env.SEPAY_WEBHOOK_SECRET ?? "",
-      });
-
-      if (!sepay.verifyWebhookSignature(rawBody, signature)) {
-        return c.json({ error: "Invalid signature" }, 401);
+      if (expectedKey && apiKey !== `Apikey ${expectedKey}`) {
+        return c.json({ success: false }, 401);
       }
 
-      const payload = JSON.parse(rawBody) as {
-        transactionId?: string;
-        amount?: number;
-        reference?: string;
-        status?: string;
-      };
+      const payload = await c.req.json<SepayWebhookPayload>();
 
-      const transactionId = payload.transactionId ?? payload.reference;
-      const amountCents = payload.amount ?? 0;
-
-      if (!transactionId || amountCents <= 0) {
-        return c.json({ error: "Invalid payload" }, 400);
+      if (!payload.id || !payload.transferAmount || payload.transferType !== "in") {
+        return c.json({ success: true }, 200);
       }
 
-      // Check if already processed (idempotency) — exact match on sepay_transaction_id
+      const sepayId = String(payload.id);
+
       const existing = await c.env.DB
         .prepare(
           "SELECT id FROM topup_records WHERE sepay_transaction_id = ? AND status = 'confirmed'"
         )
-        .bind(transactionId)
+        .bind(sepayId)
         .first();
 
       if (existing) {
-        return c.json({ message: "Already processed" }, 200);
+        return c.json({ success: true }, 200);
       }
 
-      // Find pending topup record by exact sepay_transaction_id match
+      const matchCode = payload.code ?? extractTransactionCode(payload.content);
+
+      if (!matchCode) {
+        console.error("SePay webhook: no matching code in payload", payload);
+        return c.json({ success: true }, 200);
+      }
+
       const pending = await c.env.DB
         .prepare(
-          "SELECT user_id FROM topup_records WHERE sepay_transaction_id = ? AND status = 'pending' LIMIT 1"
+          "SELECT user_id, amount_cents FROM topup_records WHERE sepay_transaction_id = ? AND status = 'pending' LIMIT 1"
         )
-        .bind(transactionId)
-        .first<{ user_id: string }>();
+        .bind(matchCode)
+        .first<{ user_id: string; amount_cents: number }>();
 
       if (!pending) {
-        return c.json({ error: "No matching pending topup" }, 404);
+        console.error("SePay webhook: no pending topup for code:", matchCode);
+        return c.json({ success: true }, 200);
       }
 
-      const billing = createBillingService();
-      await billing.addCredit(
-        c.env.DB,
-        pending.user_id,
-        amountCents,
-        transactionId
-      );
+      const usdCents = vndToUsdCents(payload.transferAmount);
 
-      return c.json({ message: "Payment confirmed", amount: amountCents }, 200);
+      const billing = createBillingService();
+      await billing.addCredit(c.env.DB, pending.user_id, usdCents, sepayId);
+
+      await c.env.DB
+        .prepare(
+          "UPDATE topup_records SET status = 'confirmed', confirmed_at = ? WHERE sepay_transaction_id = ? AND status = 'pending'"
+        )
+        .bind(new Date().toISOString(), matchCode)
+        .run();
+
+      return c.json({ success: true }, 200);
     } catch (err) {
       console.error("SePay webhook error:", err);
-      return c.json({ error: "Webhook processing failed" }, 500);
+      return c.json({ success: true }, 200);
     }
   });
 
   return router;
+}
+
+function extractTransactionCode(content: string): string | null {
+  const match = content.match(/topup_[a-z0-9]{16}/i);
+  return match ? match[0] : null;
 }

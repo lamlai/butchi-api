@@ -62,23 +62,16 @@ export function createBillingService(): BillingService {
     }
   };
 
-  // For multi-statement operations (db.batch)
   const addCredit = async (
     db: D1Database,
     userId: string,
     amountCents: number,
-    transactionId: string
+    _transactionId: string
   ): Promise<void> => {
-    await db.batch([
-      db
-        .prepare(
-          "INSERT INTO topup_records (id, user_id, amount_cents, sepay_transaction_id, status, confirmed_at) VALUES (?, ?, ?, ?, 'confirmed', ?)"
-        )
-        .bind(generateId(), userId, amountCents, transactionId, new Date().toISOString()),
-      db
-        .prepare("UPDATE users SET balance_cents = balance_cents + ? WHERE id = ?")
-        .bind(amountCents, userId),
-    ]);
+    await db
+      .prepare("UPDATE users SET balance_cents = balance_cents + ? WHERE id = ?")
+      .bind(amountCents, userId)
+      .run();
   };
 
   const checkSufficientBalance = async (
