@@ -1,5 +1,6 @@
 # Local dev environment variables
 # Copy to .dev.vars and fill in values
 JWT_SECRET=change-me-in-production
-OTP_EMAIL_FROM=noreply@butchi.dev
+EMAILIT_API_KEY=your-emailit-api-key
+OTP_EMAIL_FROM=noreply@butchi.ai
 ENVIRONMENT=development

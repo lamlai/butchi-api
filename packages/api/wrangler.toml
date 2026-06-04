@@ -30,4 +30,10 @@ index_name = "butchi-rag-index"
 # Environment variables
 [vars]
 ENVIRONMENT = "production"
-OTP_EMAIL_FROM = "noreply@butchi.dev"
+OTP_EMAIL_FROM = "noreply@butchi.ai"
+
+# Static assets (dashboard SSG build)
+[assets]
+directory = "../dashboard/dist"
+binding = "ASSETS"
+run_worker_first = true

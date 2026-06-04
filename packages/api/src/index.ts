@@ -24,22 +24,20 @@ type Bindings = {
   SEPAY_ACCOUNT_NUMBER?: string;
   SEPAY_ACCOUNT_NAME?: string;
   SEPAY_WEBHOOK_SECRET?: string;
+  EMAILIT_API_KEY?: string;
+  ASSETS: Fetcher;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.use("*", cors({
-  origin: ["http://localhost:4321", "https://butchi-dashboard.pages.dev"],
+  origin: ["http://localhost:4321"],
   credentials: true,
 }));
 app.use("*", logger());
 
 app.get("/health", (c) => {
   return c.json({ status: "ok", environment: c.env.ENVIRONMENT });
-});
-
-app.get("/", (c) => {
-  return c.json({ name: "Butchi API", version: "0.1.0" });
 });
 
 // Auth routes
@@ -60,5 +58,14 @@ app.route("/api/keys", createApiKeyRoutes());
 app.route("/api/usage", createUsageRoutes());
 app.route("/api/billing", createBillingRoutes());
 app.route("/api/webhooks", createWebhookRoutes());
+
+// Root redirect
+app.get("/", (c) => c.redirect("/login", 302));
+
+// Catch-all: serve dashboard static assets
+app.all("*", async (c) => {
+  const req = new Request(c.req.raw);
+  return c.env.ASSETS.fetch(req);
+});
 
 export default app;

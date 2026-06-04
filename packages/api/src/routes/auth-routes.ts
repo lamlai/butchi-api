@@ -24,7 +24,8 @@ export function createAuthRoutes() {
 
     try {
       const otpService = createOtpService(c.env.DB);
-      const emailService = createEmailService(c.env.OTP_EMAIL_FROM);
+      const emailitApiKey = (c.env as Record<string, unknown>).EMAILIT_API_KEY as string | undefined;
+      const emailService = createEmailService(c.env.OTP_EMAIL_FROM, emailitApiKey);
 
       const code = await otpService.generateOtp(email);
       await emailService.sendOtp(email, code);

@@ -5,3 +5,4 @@ dist/
 .wrangler/
 .astro/
 screenshot-login-error.png
+screenshot-*.png
