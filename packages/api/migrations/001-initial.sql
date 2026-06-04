@@ -1,0 +1,1 @@
+../src/db/migrations/001-initial.sql

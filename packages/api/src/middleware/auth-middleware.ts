@@ -4,6 +4,7 @@ import { createJwtService } from "../services/jwt-service";
 export interface AuthUser {
   userId: string;
   email: string;
+  role: string;
 }
 
 // Extend Hono context variables
@@ -34,7 +35,7 @@ export function createAuthMiddleware() {
       return c.json({ error: "Unauthorized: invalid or expired token" }, 401);
     }
 
-    c.set("user", { userId: payload.sub, email: payload.email });
+    c.set("user", { userId: payload.sub, email: payload.email, role: payload.role || "user" });
     await next();
   };
 }

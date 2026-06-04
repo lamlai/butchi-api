@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "=== Butchi API Deploy ==="
 
 # Apply D1 migrations
@@ -17,6 +19,6 @@ pnpm --filter dashboard build
 
 # Deploy dashboard
 echo "-> Deploying dashboard..."
-pnpm --filter dashboard exec wrangler pages deploy dist
+pnpm --filter api exec wrangler pages deploy "$SCRIPT_DIR/packages/dashboard/dist" --project-name butchi-dashboard
 
 echo "=== Deploy complete ==="

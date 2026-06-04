@@ -102,6 +102,9 @@ Deploy:
 - [ ] D1 migrations applied to production (chưa deploy)
 - [ ] End-to-end flow works (chưa test end-to-end)
 - [x] Deploy script created (deploy.sh)
+- [x] D1 migrations applied to production
+- [x] API Worker deployed: https://butchi-api.ngoclamlai.workers.dev/
+- [x] Dashboard Pages deployed: https://butchi-dashboard.pages.dev/
 
 ## Risk Assessment
 

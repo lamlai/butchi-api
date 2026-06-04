@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "butchi-db"
-database_id = ""
+database_id = "e4143f19-8b24-47ad-bd92-fd56abc05e60"
 
 # R2 Storage
 [[r2_buckets]]
@@ -29,6 +29,5 @@ index_name = "butchi-rag-index"
 
 # Environment variables
 [vars]
-ENVIRONMENT = "development"
-JWT_SECRET = "dev-secret-change-in-production"
+ENVIRONMENT = "production"
 OTP_EMAIL_FROM = "noreply@butchi.dev"

@@ -3,3 +3,5 @@ dist/
 .dev.vars
 *.log
 .wrangler/
+.astro/
+screenshot-login-error.png

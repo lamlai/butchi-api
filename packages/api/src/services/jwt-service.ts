@@ -1,12 +1,13 @@
 export interface JwtPayload {
   sub: string;
   email: string;
+  role: string;
   iat: number;
   exp: number;
 }
 
 export interface JwtService {
-  sign(payload: { userId: string; email: string }): Promise<string>;
+  sign(payload: { userId: string; email: string; role: string }): Promise<string>;
   verify(token: string): Promise<JwtPayload | null>;
 }
 
@@ -49,11 +50,13 @@ export function createJwtService(secret: string): JwtService {
   const sign = async (payload: {
     userId: string;
     email: string;
+    role: string;
   }): Promise<string> => {
     const header = base64UrlEncode(ALG_HEADER);
     const body = base64UrlEncode({
       sub: payload.userId,
       email: payload.email,
+      role: payload.role,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + TOKEN_EXPIRY_HOURS * 3600,
     });

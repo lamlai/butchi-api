@@ -3,6 +3,7 @@ import { createOtpService } from "../services/otp-service";
 import { createJwtService } from "../services/jwt-service";
 import { createEmailService } from "../services/email-service";
 import { generateId } from "../lib/id-utils";
+import { ADMIN_EMAIL } from "../config/admin-config";
 
 type Bindings = {
   DB: D1Database;
@@ -64,23 +65,26 @@ export function createAuthRoutes() {
       let user = await db
         .prepare("SELECT * FROM users WHERE email = ?")
         .bind(email)
-        .first<{ id: string; email: string }>();
+        .first<{ id: string; email: string; role: string }>();
 
       if (!user) {
+        const role = email === ADMIN_EMAIL ? "admin" : "user";
+
         const id = generateId();
         await db
-          .prepare("INSERT INTO users (id, email) VALUES (?, ?)")
-          .bind(id, email)
+          .prepare("INSERT INTO users (id, email, role) VALUES (?, ?, ?)")
+          .bind(id, email, role)
           .run();
-        user = { id, email };
+        user = { id, email, role };
       }
 
       const token = await jwtService.sign({
         userId: user.id,
         email: user.email,
+        role: user.role || "user",
       });
 
-      return c.json({ token, user: { id: user.id, email: user.email } }, 200);
+      return c.json({ token, user: { id: user.id, email: user.email, role: user.role || "user" } }, 200);
     } catch (err) {
       console.error("OTP verify error:", err);
       return c.json({ error: "Verification failed" }, 500);

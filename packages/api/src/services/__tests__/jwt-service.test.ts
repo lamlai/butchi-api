@@ -7,7 +7,7 @@ describe("JWT Service", () => {
   const jwt = createJwtService(TEST_SECRET);
 
   it("signs and verifies a token", async () => {
-    const token = await jwt.sign({ userId: "user-1", email: "test@test.com" });
+    const token = await jwt.sign({ userId: "user-1", email: "test@test.com", role: "user" });
     expect(token).toBeTruthy();
     expect(token.split(".")).toHaveLength(3);
 
@@ -15,6 +15,7 @@ describe("JWT Service", () => {
     expect(payload).not.toBeNull();
     expect(payload!.sub).toBe("user-1");
     expect(payload!.email).toBe("test@test.com");
+    expect(payload!.role).toBe("user");
   });
 
   it("rejects expired tokens", async () => {
@@ -25,6 +26,7 @@ describe("JWT Service", () => {
     const token = await jwtWithShortExpiry.sign({
       userId: "user-1",
       email: "test@test.com",
+      role: "user",
     });
 
     // Should be valid immediately
@@ -33,7 +35,7 @@ describe("JWT Service", () => {
   });
 
   it("rejects tampered tokens", async () => {
-    const token = await jwt.sign({ userId: "user-1", email: "test@test.com" });
+    const token = await jwt.sign({ userId: "user-1", email: "test@test.com", role: "user" });
     const parts = token.split(".");
     const tamperedToken = `${parts[0]}.${parts[1]}.tampered-signature`;
 
@@ -47,7 +49,7 @@ describe("JWT Service", () => {
   });
 
   it("rejects tokens with different secret", async () => {
-    const token = await jwt.sign({ userId: "user-1", email: "test@test.com" });
+    const token = await jwt.sign({ userId: "user-1", email: "test@test.com", role: "user" });
     const otherJwt = createJwtService("different-secret");
     const payload = await otherJwt.verify(token);
     expect(payload).toBeNull();
