@@ -87,23 +87,37 @@ const { title } = Astro.props;
         <a href="/dashboard/admin/users">Users</a>
         <a href="/dashboard/admin/transactions">Transactions</a>
       </div>
+      <div style="margin-top: auto; padding-top: var(--space-lg);">
+        <hr style="border-color: var(--color-inverse-surface-1, #262626); margin-bottom: var(--space-sm);" />
+        <a href="#" id="logout-btn" style="color: var(--color-inverse-ink-muted); cursor: pointer;">Logout</a>
+      </div>
     </nav>
     <main class="main">
       <h1>{title}</h1>
       <slot />
     </main>
     <script>
-      // Show admin nav if user has admin role
-      try {
-        const token = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith('token='));
-        if (token) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          if (payload.role === 'admin') {
-            const adminNav = document.getElementById('admin-nav');
-            if (adminNav) adminNav.style.display = 'flex';
-          }
-        }
-      } catch {}
+      function getTokenPayload() {
+        try {
+          const match = document.cookie.match(/(?:^|; )token=([^;]+)/);
+          if (!match) return null;
+          const base64 = match[1].split('.')[1];
+          const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+          return JSON.parse(json);
+        } catch { return null; }
+      }
+
+      const payload = getTokenPayload();
+      if (payload?.role === 'admin') {
+        const adminNav = document.getElementById('admin-nav');
+        if (adminNav) adminNav.style.display = 'flex';
+      }
+
+      document.getElementById('logout-btn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.cookie = 'token=; path=/; max-age=0';
+        window.location.href = '/login';
+      });
     </script>
   </body>
 </html>
