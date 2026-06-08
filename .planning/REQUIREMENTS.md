@@ -235,8 +235,8 @@ Deferred cho future release. Tracked nhưng không trong current roadmap.
 | I18N-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 65 total
-- Mapped to phases: 65
+- v1 requirements: 66 total
+- Mapped to phases: 66
 - Unmapped: 0 ✓
 
 ---
