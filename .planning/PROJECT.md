@@ -113,6 +113,7 @@ Developer VN có thể gọi AI API (OpenAI/Anthropic compatible) với RAG grou
 - **Frontend**: Astro static SSG + React islands — không SSR runtime (cost), không client-side routing (giữ đơn giản)
 - **Database**: D1 SQLite only — không Postgres, không KV, không Durable Objects cho v1 (trừ rate limit nếu cần)
 - **Embeddings**: Workers AI `@cf/bge-base-en-v1.5` (768-dim) — đồng bộ với Vectorize
+- **Admin email**: `ngoclam.lai@gmail.com` (bootstrap admin qua `ADMIN_EMAIL` env)
 - **Auth**: Email OTP only (Emailit) — không password, không OAuth cho v1
 - **Payment**: SePay QR only — không Stripe, không VNPay cho v1 (focus VN market)
 - **Currency display**: VND cho user-facing, USD cents nội bộ để tính cost

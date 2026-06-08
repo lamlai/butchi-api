@@ -35,10 +35,11 @@ See: `.planning/PROJECT.md` (updated 2026-06-08)
 ## Notes
 
 - GSD agents không installed → workflow chạy inline mode (no parallel research/roadmap subagents)
-- Existing code trong `packages/api` + `packages/dashboard` từ prior effort; treat là reference implementation, không phải "validated"
+- **Fresh start confirmed**: prior source code (`packages/`, `docs/`, `plans/`, `pnpm-lock.yaml`) deleted in `94bb245` — 88 files, 10756 deletions
+- Admin email: `ngoclam.lai@gmail.com` (set in `wrangler.toml [vars] ADMIN_EMAIL` when scaffolding)
 - Reference UI: DeepSeek Platform (Studio, Usage, Billing, API Keys, Profile) + Command Code (cùng pattern)
 - Design system: IBM Carbon tokens (đã có `DESIGN.md`)
-- Deploy target: `butchi-api.ngoclamlai.workers.dev`
+- Deploy target: `butchi-api.ngoclamlai.workers.dev` (sẽ re-deploy sau Phase 1)
 
 ## Next Action
 
