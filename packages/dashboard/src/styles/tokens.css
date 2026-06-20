@@ -1,0 +1,178 @@
+/* =====================================================================
+ * butchi-api dashboard — design tokens
+ *
+ * Visual language: Together AI aesthetic (per user decision 2026-06-20).
+ * Replaces the IBM Carbon tokens captured in DESIGN.md for the live UI.
+ * Carbon tokens remain the *source-of-record* in DESIGN.md for future
+ * projects; this file is the runtime truth for butchi-api.
+ *
+ * Surface model
+ * ------------
+ *  - `--bg`         page background (near-black)
+ *  - `--surface`    cards, panels, table containers (one step lighter)
+ *  - `--surface-2`  inputs, hover row, subtle bands (two steps lighter)
+ *  - `--border`     hairline dividers
+ *  - `--ink`        primary text (high contrast on every surface)
+ *  - `--ink-muted`  secondary text
+ *  - `--ink-subtle` tertiary / disabled
+ *  - `--accent`     Together AI blue/purple — links, primary CTA, focus
+ *  - `--success`, `--warning`, `--error` — semantic status colors
+ *
+ * Why this file exists (table contrast bug, 2026-06-20)
+ * -----------------------------------------------------
+ * The admin Van Phong page wraps the table in a dark surface where the
+ * default text color is `--ink` (white). The table itself sits on a
+ * LIGHT background but was inheriting the white text → invisible cells.
+ * The fix is structural: every table cell declares its own foreground
+ * via `.data-table td { color: ... }`. No cell may rely on inheritance.
+ * ===================================================================== */
+
+:root {
+  /* ---- Surfaces (Together AI: dark-on-dark with subtle elevation) ---- */
+  --bg: #0a0a0a;
+  --surface: #131313;
+  --surface-2: #1c1c1c;
+  --surface-light: #fafafa;       /* used for the data-table bg only */
+  --border: #262626;
+  --border-strong: #404040;
+
+  /* ---- Ink ---- */
+  --ink: #f5f5f5;                 /* primary on dark surfaces */
+  --ink-muted: #a3a3a3;
+  --ink-subtle: #737373;
+  --ink-on-light: #0a0a0a;        /* primary on --surface-light (table cells) */
+
+  /* ---- Accent (Together AI blue) ---- */
+  --accent: #6155f5;
+  --accent-hover: #7b6ff8;
+  --accent-pressed: #4a40d4;
+
+  /* ---- Semantic ---- */
+  --success: #2dd4bf;             /* teal-400 — matches active badge in screenshot */
+  --success-bg: rgba(45, 212, 191, 0.15);
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.15);
+
+  /* ---- Spacing scale (4px grid) ---- */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* ---- Typography ---- */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+}
+
+/* =====================================================================
+ * Global resets — guarantee text contrast on every surface.
+ * These rules block the parent-inherits-invisible-text failure mode.
+ * ===================================================================== */
+
+html, body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Inputs — always dark text. Inputs sit on --surface-2 by default. */
+input, select, textarea {
+  background-color: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-sm);
+  font-family: inherit;
+  font-size: var(--text-base);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-subtle);
+}
+
+/* =====================================================================
+ * .data-table — the heart of the table-contrast fix.
+ *
+ * Rules:
+ *  1. Table bg is light, so EVERY cell must declare --ink-on-light.
+ *  2. No cell relies on parent inheritance.
+ *  3. Header sits on transparent → uses --ink-muted for visual weight 0.
+ *  4. Hover row uses --surface-2 → must also re-declare text color.
+ * ===================================================================== */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--surface-light);
+  /* Defense in depth: even if a child forgets color, inherit this. */
+  color: var(--ink-on-light);
+}
+
+.data-table thead th {
+  text-align: left;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-on-light);
+  opacity: 0.6;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table tbody td {
+  /* ⬇ THE FIX ⬇ — was inheriting white from dark parent. */
+  color: var(--ink-on-light);
+  font-size: var(--text-sm);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover td {
+  background-color: var(--surface-2);
+  /* Re-declare color because hover bg is dark. */
+  color: var(--ink);
+}
+
+/* Status pill — used in the STATUS column. */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+
+.status-pill[data-status="inactive"] {
+  background-color: var(--error-bg);
+  color: var(--error);
+}
